@@ -38,7 +38,8 @@ jobs:
         run: |
           $asset = ".\ServerBackuper-win-x64.zip"
           $hash = (Get-FileHash -LiteralPath $asset -Algorithm SHA256).Hash
-          "$hash  ServerBackuper-win-x64.zip" | Set-Content -LiteralPath "$asset.sha256" -Encoding utf8 -NoNewline
+          $content = "$hash  ServerBackuper-win-x64.zip"
+          [IO.File]::WriteAllText("$asset.sha256", $content, [Text.UTF8Encoding]::new($false))
 
       - name: Publish GitHub Release
         shell: powershell
@@ -47,8 +48,8 @@ jobs:
         run: |
           $asset = ".\ServerBackuper-win-x64.zip"
           $checksum = "$asset.sha256"
-          gh release view $env:RELEASE_TAG 2>$null
-          if ($LASTEXITCODE -eq 0) {
+          $releases = @(gh release list --limit 100 --json tagName | ConvertFrom-Json)
+          if ($releases.tagName -contains $env:RELEASE_TAG) {
             gh release upload $env:RELEASE_TAG $asset $checksum --clobber
           }
           else {
