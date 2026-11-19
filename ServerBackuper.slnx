@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="ServerBackuper.App/ServerBackuper.App.csproj" />
+  <Project Path="ServerBackuper.Installer/ServerBackuper.Installer.csproj" />
+  <Project Path="ServerBackuper.Core/ServerBackuper.Core.csproj" />
+  <Project Path="ServerBackuper.Service/ServerBackuper.Service.csproj" />
+  <Project Path="ServerBackuper.Tests/ServerBackuper.Tests.csproj" />
+  <Project Path="ServerBackuper.Uninstaller/ServerBackuper.Uninstaller.csproj" />
+</Solution>

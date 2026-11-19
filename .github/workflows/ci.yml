@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore .\ServerBackuper.slnx
+
+      - name: Build
+        run: dotnet build .\ServerBackuper.slnx -c Release --no-restore --nologo
+
+      - name: Regression tests
+        run: dotnet run --project .\ServerBackuper.Tests\ServerBackuper.Tests.csproj -c Release --no-build

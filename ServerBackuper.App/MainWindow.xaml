@@ -1,0 +1,263 @@
+<Window x:Class="ServerBackuper.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:automation="clr-namespace:System.Windows.Automation;assembly=PresentationCore"
+        Title="Server Backuper" Height="760" Width="940" MinHeight="600" MinWidth="760"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TabControl x:Name="MainTabs" Grid.Row="0" AutomationProperties.Name="Główne sekcje programu">
+            <TabItem Header="_Stan" AutomationProperties.Name="Stan">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="12">
+                        <TextBlock Text="Stan agenta i bieżącej operacji" FontSize="22" FontWeight="Bold"
+                                   AutomationProperties.HeadingLevel="Level1"/>
+                        <Grid Margin="0,12,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="220"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="Stan usługi:" Margin="4"/>
+                            <TextBlock x:Name="ServiceStatusText" Grid.Row="0" Grid.Column="1" Text="Nieznany" Margin="4"
+                                       AutomationProperties.Name="Stan usługi"/>
+                            <TextBlock Grid.Row="1" Text="Bieżący etap:" Margin="4"/>
+                            <TextBlock x:Name="CurrentStageText" Grid.Row="1" Grid.Column="1" Text="Brak" Margin="4"
+                                       AutomationProperties.Name="Bieżący etap"/>
+                            <TextBlock Grid.Row="2" Text="Postęp:" Margin="4"/>
+                            <StackPanel Grid.Row="2" Grid.Column="1" Margin="4">
+                                <TextBlock x:Name="ProgressText" Text="0 procent"
+                                           AutomationProperties.Name="Postęp bieżącej operacji"/>
+                                <ProgressBar x:Name="BackupProgressBar" Height="18" Margin="0,4,0,0"
+                                             Minimum="0" Maximum="100" Value="0"
+                                             AutomationProperties.Name="Pasek postępu bieżącej operacji"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="3" Text="Ostatni poprawny backup:" Margin="4"/>
+                            <TextBlock x:Name="LastSuccessText" Grid.Row="3" Grid.Column="1" Text="Brak" Margin="4"
+                                       AutomationProperties.Name="Ostatni poprawny backup"/>
+                            <TextBlock Grid.Row="4" Text="Następny backup:" Margin="4"/>
+                            <TextBlock x:Name="NextRunText" Grid.Row="4" Grid.Column="1" Text="Brak" Margin="4"
+                                       AutomationProperties.Name="Następny zaplanowany backup"/>
+                            <TextBlock Grid.Row="5" Text="Komunikat:" Margin="4"/>
+                            <TextBlock x:Name="LastMessageText" Grid.Row="5" Grid.Column="1" Text="Brak" Margin="4"
+                                       TextWrapping="Wrap" AutomationProperties.Name="Ostatni komunikat"/>
+                        </Grid>
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="RunNowButton" Content="_Uruchom backup teraz" Click="RunNow_Click"
+                                    AutomationProperties.Name="Uruchom backup teraz"/>
+                            <Button x:Name="CancelButton" Content="_Anuluj operację" Click="Cancel_Click"
+                                    AutomationProperties.Name="Bezpiecznie anuluj trwający backup lub przywracanie"/>
+                            <Button Content="_Odśwież stan" Click="Refresh_Click"/>
+                        </StackPanel>
+                        <TextBlock Margin="4,16,4,4" TextWrapping="Wrap"
+                                   Text="Anulowanie zawsze próbuje ponownie uruchomić wcześniej działające kontenery."/>
+                        <TextBlock Margin="4,14,4,4" Text="Przebieg bieżącej operacji" FontSize="18"
+                                   FontWeight="Bold" AutomationProperties.HeadingLevel="Level2"/>
+                        <TextBox x:Name="LiveOperationLogBox" IsReadOnly="True" AcceptsReturn="True"
+                                 MinHeight="190" MaxHeight="280" TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                 AutomationProperties.Name="Automatycznie odświeżany przebieg bieżącej operacji"
+                                 AutomationProperties.HelpText="Pole aktualizuje się samo. Najnowszy wpis znajduje się na końcu."/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="_Ustawienia" AutomationProperties.Name="Ustawienia backupu">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="12">
+                        <TextBlock Text="Lokalizacje" FontSize="22" FontWeight="Bold"
+                                   AutomationProperties.HeadingLevel="Level1"/>
+                        <Grid Margin="0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="220"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Label x:Name="SourceLabel" Grid.Row="0" Content="Katalog źródłowy:" Target="{Binding ElementName=SourceRootBox}"/>
+                            <TextBox x:Name="SourceRootBox" Grid.Row="0" Grid.Column="1"
+                                     AutomationProperties.LabeledBy="{Binding ElementName=SourceLabel}"/>
+                            <Button Grid.Row="0" Grid.Column="2" Content="_Wybierz źródło" Click="BrowseSource_Click"/>
+                            <Label x:Name="LocalLabel" Grid.Row="1" Content="Katalog kopii lokalnych:" Target="{Binding ElementName=LocalRootBox}"/>
+                            <TextBox x:Name="LocalRootBox" Grid.Row="1" Grid.Column="1"
+                                     AutomationProperties.LabeledBy="{Binding ElementName=LocalLabel}"/>
+                            <Button Grid.Row="1" Grid.Column="2" Content="Wybierz _lokalny" Click="BrowseLocal_Click"/>
+                            <CheckBox x:Name="NasEnabledBox" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"
+                                      Content="_Kopiuj backup także na NAS" Margin="4,8,4,4"
+                                      Checked="NasEnabled_Changed" Unchecked="NasEnabled_Changed"
+                                      AutomationProperties.HelpText="Po odznaczeniu harmonogram tworzy i zachowuje wyłącznie kopie lokalne."/>
+                            <Label x:Name="NasLabel" Grid.Row="3" Content="Ścieżka NAS UNC:" Target="{Binding ElementName=NasRootBox}"/>
+                            <TextBox x:Name="NasRootBox" Grid.Row="3" Grid.Column="1"
+                                     AutomationProperties.LabeledBy="{Binding ElementName=NasLabel}"
+                                     AutomationProperties.HelpText="Przykład: podwójny ukośnik, nazwa NAS, ukośnik, Backupy"/>
+                            <Button x:Name="BrowseNasButton" Grid.Row="3" Grid.Column="2" Content="Wybierz _NAS" Click="BrowseNas_Click"/>
+                            <Label x:Name="SevenZipLabel" Grid.Row="4" Content="Program 7-Zip:" Target="{Binding ElementName=SevenZipBox}"/>
+                            <TextBox x:Name="SevenZipBox" Grid.Row="4" Grid.Column="1"
+                                     AutomationProperties.LabeledBy="{Binding ElementName=SevenZipLabel}"/>
+                            <Button Grid.Row="4" Grid.Column="2" Content="Wybierz _7-Zip" Click="BrowseSevenZip_Click"/>
+                            <Label x:Name="ArchivePasswordLabel" Grid.Row="5" Content="Hasło archiwum:" Target="{Binding ElementName=ArchivePasswordBox}"/>
+                            <PasswordBox x:Name="ArchivePasswordBox" Grid.Row="5" Grid.Column="1"
+                                         AutomationProperties.LabeledBy="{Binding ElementName=ArchivePasswordLabel}"
+                                         AutomationProperties.HelpText="Hasło jest chronione przez Windows DPAPI."/>
+                        </Grid>
+
+                        <TextBlock Text="Harmonogram i retencja" FontSize="22" FontWeight="Bold" Margin="0,14,0,4"
+                                   AutomationProperties.HeadingLevel="Level1"/>
+                        <CheckBox x:Name="ScheduleEnabledBox" Content="_Włącz automatyczny harmonogram" Margin="4"/>
+                        <Grid Margin="0,6">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="260"/><ColumnDefinition Width="220"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Label x:Name="IntervalLabel" Grid.Row="0" Content="Odstęp w godzinach:" Target="{Binding ElementName=IntervalHoursBox}"/>
+                            <TextBox x:Name="IntervalHoursBox" Grid.Row="0" Grid.Column="1"
+                                     AutomationProperties.LabeledBy="{Binding ElementName=IntervalLabel}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="Domyślnie 48 godzin" VerticalAlignment="Center" Margin="8"/>
+                            <Label x:Name="FirstDateLabel" Grid.Row="1" Content="Data pierwszego backupu:" Target="{Binding ElementName=FirstDateBox}"/>
+                            <TextBox x:Name="FirstDateBox" Grid.Row="1" Grid.Column="1"
+                                     AutomationProperties.LabeledBy="{Binding ElementName=FirstDateLabel}"
+                                     AutomationProperties.HelpText="Format: rok, myślnik, miesiąc, myślnik, dzień"/>
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="Format RRRR-MM-DD" VerticalAlignment="Center" Margin="8"/>
+                            <Label x:Name="FirstTimeLabel" Grid.Row="2" Content="Godzina pierwszego backupu:" Target="{Binding ElementName=FirstTimeBox}"/>
+                            <TextBox x:Name="FirstTimeBox" Grid.Row="2" Grid.Column="1"
+                                     AutomationProperties.LabeledBy="{Binding ElementName=FirstTimeLabel}"
+                                     AutomationProperties.HelpText="Format: godzina, dwukropek, minuty"/>
+                            <TextBlock Grid.Row="2" Grid.Column="2" Text="Domyślnie 05:00" VerticalAlignment="Center" Margin="8"/>
+                            <Label x:Name="KeepLocalLabel" Grid.Row="3" Content="Liczba kopii lokalnych:" Target="{Binding ElementName=KeepLocalBox}"/>
+                            <TextBox x:Name="KeepLocalBox" Grid.Row="3" Grid.Column="1"
+                                     AutomationProperties.LabeledBy="{Binding ElementName=KeepLocalLabel}"/>
+                            <TextBlock Grid.Row="3" Grid.Column="2" Text="Domyślnie 2" VerticalAlignment="Center" Margin="8"/>
+                            <Label x:Name="KeepNasLabel" Grid.Row="4" Content="Liczba kopii na NAS:" Target="{Binding ElementName=KeepNasBox}"/>
+                            <TextBox x:Name="KeepNasBox" Grid.Row="4" Grid.Column="1"
+                                     AutomationProperties.LabeledBy="{Binding ElementName=KeepNasLabel}"/>
+                            <TextBlock x:Name="KeepNasHelp" Grid.Row="4" Grid.Column="2" Text="Domyślnie 3" VerticalAlignment="Center" Margin="8"/>
+                        </Grid>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="_Zapisz ustawienia" Click="Save_Click"/>
+                            <Button x:Name="TestNasButton" Content="_Testuj NAS" Click="TestNas_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="_Telegram" AutomationProperties.Name="Telegram">
+                <StackPanel Margin="12">
+                    <TextBlock Text="Powiadomienia Telegram" FontSize="22" FontWeight="Bold"
+                               AutomationProperties.HeadingLevel="Level1"/>
+                    <CheckBox x:Name="TelegramEnabledBox" Content="_Włącz powiadomienia Telegram" Margin="4,14,4,8"/>
+                    <Label x:Name="TokenLabel" Content="Token bota:" Target="{Binding ElementName=TokenBox}"/>
+                    <PasswordBox x:Name="TokenBox" AutomationProperties.LabeledBy="{Binding ElementName=TokenLabel}"
+                                 AutomationProperties.HelpText="Token jest chroniony przez Windows DPAPI."/>
+                    <Label x:Name="ChatIdLabel" Content="Chat ID:" Target="{Binding ElementName=ChatIdBox}"/>
+                    <TextBox x:Name="ChatIdBox" AutomationProperties.LabeledBy="{Binding ElementName=ChatIdLabel}"/>
+                    <CheckBox x:Name="NotifyStartBox" Content="Powiadamiaj o _rozpoczęciu" Margin="4"/>
+                    <CheckBox x:Name="NotifySuccessBox" Content="Powiadamiaj o _sukcesie" Margin="4"/>
+                    <CheckBox x:Name="NotifyFailureBox" Content="Powiadamiaj o _błędzie" Margin="4"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                        <Button Content="Z_apisz Telegram" Click="Save_Click"/>
+                        <Button x:Name="TestTelegramButton" Content="Wyślij wiadomość _testową" Click="TestTelegram_Click"/>
+                    </StackPanel>
+                </StackPanel>
+            </TabItem>
+
+            <TabItem Header="_Przywracanie" AutomationProperties.Name="Przywracanie backupu">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="12">
+                        <TextBlock Text="Przywracanie i migracja" FontSize="22" FontWeight="Bold"
+                                   AutomationProperties.HeadingLevel="Level1"/>
+                        <TextBlock Margin="0,8,0,12" TextWrapping="Wrap"
+                                   Text="Backup jest najpierw sprawdzany i rozpakowywany do katalogu tymczasowego. Katalog docelowy musi być pusty i nie może być głównym katalogiem dysku."/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="220"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Label x:Name="RestoreArchiveLabel" Grid.Row="0" Content="Archiwum backupu:"
+                                   Target="{Binding ElementName=RestoreArchiveBox}"/>
+                            <TextBox x:Name="RestoreArchiveBox" Grid.Row="0" Grid.Column="1"
+                                     AutomationProperties.LabeledBy="{Binding ElementName=RestoreArchiveLabel}"/>
+                            <Button Grid.Row="0" Grid.Column="2" Content="Wybierz _archiwum"
+                                    Click="BrowseRestoreArchive_Click"/>
+                            <Label x:Name="RestoreTargetLabel" Grid.Row="1" Content="Pusty katalog docelowy:"
+                                   Target="{Binding ElementName=RestoreTargetBox}"/>
+                            <TextBox x:Name="RestoreTargetBox" Grid.Row="1" Grid.Column="1"
+                                     AutomationProperties.LabeledBy="{Binding ElementName=RestoreTargetLabel}"/>
+                            <Button Grid.Row="1" Grid.Column="2" Content="Wybierz _cel"
+                                    Click="BrowseRestoreTarget_Click"/>
+                            <Label x:Name="RestorePasswordLabel" Grid.Row="2" Content="Hasło archiwum:"
+                                   Target="{Binding ElementName=RestorePasswordBox}"/>
+                            <PasswordBox x:Name="RestorePasswordBox" Grid.Row="2" Grid.Column="1"
+                                         AutomationProperties.LabeledBy="{Binding ElementName=RestorePasswordLabel}"/>
+                        </Grid>
+                        <CheckBox x:Name="RestoreStartContainersBox" Margin="4,10,4,6" IsChecked="True"
+                                  Content="_Uruchom projekty Docker Compose po przywróceniu"/>
+                        <Label x:Name="RestorePreviewLabel" Content="Informacje o archiwum:"
+                               Target="{Binding ElementName=RestorePreviewBox}"/>
+                        <TextBox x:Name="RestorePreviewBox" IsReadOnly="True" AcceptsReturn="True"
+                                 MinHeight="100" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                                 AutomationProperties.LabeledBy="{Binding ElementName=RestorePreviewLabel}"
+                                 Text="Najpierw wybierz archiwum i użyj przycisku Sprawdź archiwum."/>
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                            <Button x:Name="InspectRestoreButton" Content="_Sprawdź archiwum"
+                                    Click="InspectRestore_Click"/>
+                            <Button x:Name="StartRestoreButton" Content="_Rozpocznij przywracanie"
+                                    Click="StartRestore_Click"/>
+                        </StackPanel>
+                        <TextBlock Margin="4,14,4,4" TextWrapping="Wrap"
+                                   Text="Uwaga: przywracanie zastępuje zawartość wolumenów Dockera wymienionych w manifeście. Operacja wymaga działającego agenta."/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="_Historia" AutomationProperties.Name="Historia backupów">
+                <Grid Margin="12">
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="2*"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="Historia ostatnich backupów" FontSize="22" FontWeight="Bold" Margin="0,0,0,8"
+                               AutomationProperties.HeadingLevel="Level1"/>
+                    <ListBox x:Name="HistoryList" Grid.Row="1" SelectionChanged="HistoryList_SelectionChanged"
+                             AutomationProperties.Name="Lista wykonanych backupów"/>
+                    <TextBlock Grid.Row="2" Text="Szczegóły zaznaczonego backupu:" Margin="0,10,0,4"/>
+                    <TextBox x:Name="HistoryDetailsBox" Grid.Row="3" IsReadOnly="True" TextWrapping="Wrap"
+                             VerticalScrollBarVisibility="Auto" AutomationProperties.Name="Szczegóły backupu"/>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="_Dziennik" AutomationProperties.Name="Dziennik programu">
+                <Grid Margin="12">
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock Text="Dziennik techniczny" FontSize="22" FontWeight="Bold" VerticalAlignment="Center"
+                                   AutomationProperties.HeadingLevel="Level1"/>
+                        <Button Content="_Odśwież dziennik" Click="RefreshLog_Click"/>
+                    </StackPanel>
+                    <TextBox x:Name="LogBox" Grid.Row="1" IsReadOnly="True" AcceptsReturn="True"
+                             FontFamily="Consolas" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                             AutomationProperties.Name="Treść dziennika technicznego"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <Border Grid.Row="1" BorderThickness="1" BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}"
+                Padding="8" Margin="0,8,0,0">
+            <StackPanel>
+                <TextBlock x:Name="LiveStatus" Text="Gotowy" TextWrapping="Wrap"
+                           AutomationProperties.LiveSetting="Polite"/>
+                <ProgressBar x:Name="OperationProgress" Height="18" Margin="0,6,0,0"
+                             IsIndeterminate="True" Visibility="Collapsed"
+                             AutomationProperties.Name="Trwa wykonywanie testu"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

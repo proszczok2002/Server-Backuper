@@ -1,0 +1,40 @@
+name: Zgłoszenie błędu
+description: Zgłoś powtarzalny problem w Server Backuperze
+title: "[Błąd] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "Nie wklejaj tokenów, haseł, prywatnych adresów ani pełnych logów bez anonimizacji. Podatności zgłaszaj zgodnie z SECURITY.md."
+  - type: input
+    id: version
+    attributes:
+      label: Wersja programu
+      placeholder: "np. 1.0.0"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Środowisko
+      description: Windows, Docker Desktop i 7-Zip
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Kroki odtworzenia
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Oczekiwane zachowanie
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Rzeczywiste zachowanie i zanonimizowany fragment logu
+    validations:
+      required: true

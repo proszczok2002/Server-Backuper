@@ -1,0 +1,13 @@
+<Project>
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+    <Authors>proszczok2002</Authors>
+    <Product>Server Backuper</Product>
+    <Description>Bezpieczne, szyfrowane kopie lokalnych środowisk Docker na Windows z opcjonalną kopią NAS.</Description>
+    <RepositoryUrl>https://github.com/proszczok2002/Server-Backuper</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+</Project>

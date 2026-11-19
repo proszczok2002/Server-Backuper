@@ -1,0 +1,21 @@
+name: Propozycja funkcji
+description: Zaproponuj ulepszenie programu
+title: "[Propozycja] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Jaki problem ma rozwiązać ta funkcja?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proponowane rozwiązanie
+    validations:
+      required: true
+  - type: textarea
+    id: safety
+    attributes:
+      label: Wpływ na bezpieczeństwo backupu, restore lub retencję
