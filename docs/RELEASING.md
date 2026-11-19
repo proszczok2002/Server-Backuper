@@ -28,8 +28,9 @@ Get-FileHash .\ServerBackuper-win-x64.zip -Algorithm SHA256
 1. Zatwierdź i wypchnij czyste źródła do `main`.
 2. Poczekaj na zielony workflow CI.
 3. Utwórz tag `vMAJOR.MINOR.PATCH` wskazujący zweryfikowany commit.
-4. Uruchom workflow „Release” z numerem tagu albo utwórz wydanie przez GitHub CLI.
-5. Dołącz dokładnie `ServerBackuper-win-x64.zip`.
-6. Pobierz publiczny asset i porównaj jego rozmiar oraz SHA-256 z lokalnym plikiem.
+4. Wypchnij tag. Workflow `Release` sam buduje i testuje paczkę, publikuje ją w GitHub Releases oraz dodaje plik `ServerBackuper-win-x64.zip.sha256`.
+5. Pobierz oba publiczne pliki i sprawdź, czy suma pobranego ZIP-a zgadza się z dołączonym plikiem `.sha256`.
+
+Workflow można też uruchomić ręcznie z zakładki Actions, podając istniejący albo nowy numer tagu.
 
 Nie umieszczaj ZIP-a bezpośrednio w historii Git — binaria należą do GitHub Releases.

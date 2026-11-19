@@ -23,7 +23,6 @@ Pliki wykonywalne nie są podpisane certyfikatem Authenticode, dlatego Windows S
 
 ## Kontrola pliku
 
-- rozmiar: `193608377` bajtów;
-- SHA-256: `D2894EDE504B99A928EEAB50C38777F11AE40980D17FCC0A2E3C3C2AC3131280`.
+Do wydania dołączony jest plik `ServerBackuper-win-x64.zip.sha256` z sumą SHA-256 dokładnie tej paczki, którą zbudował GitHub.
 
 Wydanie przeszło 17 testów regresji. Nie wykonano jeszcze tą wersją pełnego produkcyjnego backupu około 70 GB ani kompletnego ręcznego testu z aktualnym NVDA.
